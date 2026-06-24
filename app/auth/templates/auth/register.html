@@ -1,0 +1,28 @@
+<!-- app/auth/templates/auth/register.html -->
+<!-- formulario de registro -->
+
+{% extends "base.html" %}
+{% block title %}registro{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <h2>registrarse</h2>
+        <form method="post">
+            <div class="mb-3">
+                <label for="username" class="form-label">usuario</label>
+                <input type="text" class="form-control" id="username" name="username" required>
+            </div>
+            <div class="mb-3">
+                <label for="email" class="form-label">correo electronico</label>
+                <input type="email" class="form-control" id="email" name="email" required>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">contraseña</label>
+                <input type="password" class="form-control" id="password" name="password" required>
+            </div>
+            <button type="submit" class="btn btn-success">registrarse</button>
+        </form>
+        <p class="mt-3">¿ya tienes cuenta? <a href="{{ url_for('auth.login') }}">inicia sesion</a></p>
+    </div>
+</div>
+{% endblock %}

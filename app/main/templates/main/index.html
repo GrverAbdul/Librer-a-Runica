@@ -1,0 +1,14 @@
+<!-- app/main/templates/main/index.html -->
+<!-- pagina de inicio -->
+
+{% extends "base.html" %}
+{% block title %}inicio{% endblock %}
+{% block content %}
+<div class="text-center">
+    <h1 class="display-4">bienvenido a la libreria runica</h1>
+    <p class="lead">tu tienda de libros favorita</p>
+    {% if not current_user.is_authenticated %}
+        <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">registrate ahora</a>
+    {% endif %}
+</div>
+{% endblock %}

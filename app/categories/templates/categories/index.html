@@ -1,0 +1,38 @@
+<!-- app/categories/templates/categories/index.html -->
+<!-- lista todas las categorias con opciones de crear, editar y eliminar -->
+
+{% extends "base.html" %}
+{% block title %}categorias{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>categorias</h2>
+    <a href="{{ url_for('categories.create') }}" class="btn btn-primary">nueva categoria</a>
+</div>
+
+{% if categorias %}
+    <table class="table table-bordered table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>nombre</th>
+                <th>descripcion</th>
+                <th>acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for cat in categorias %}
+            <tr>
+                <td>{{ cat.nombre }}</td>
+                <td>{{ cat.descripcion or '' }}</td>
+                <td>
+                    <a href="{{ url_for('categories.edit', id=cat.id) }}" class="btn btn-sm btn-warning">editar</a>
+                    <a href="{{ url_for('categories.delete', id=cat.id) }}" class="btn btn-sm btn-danger"
+                       onclick="return confirm('¿eliminar esta categoria?')">eliminar</a>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <div class="alert alert-info">no hay categorias registradas. ¡crea la primera!</div>
+{% endif %}
+{% endblock %}

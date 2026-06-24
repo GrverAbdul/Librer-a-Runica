@@ -1,0 +1,20 @@
+<!-- app/categories/templates/categories/create.html -->
+<!-- formulario para crear una nueva categoria -->
+
+{% extends "base.html" %}
+{% block title %}crear categoria{% endblock %}
+{% block content %}
+<h2>crear categoria</h2>
+<form method="post">
+    <div class="mb-3">
+        <label for="nombre" class="form-label">nombre *</label>
+        <input type="text" class="form-control" id="nombre" name="nombre" required maxlength="100">
+    </div>
+    <div class="mb-3">
+        <label for="descripcion" class="form-label">descripcion</label>
+        <textarea class="form-control" id="descripcion" name="descripcion" rows="3"></textarea>
+    </div>
+    <button type="submit" class="btn btn-success">guardar</button>
+    <a href="{{ url_for('categories.index') }}" class="btn btn-secondary">cancelar</a>
+</form>
+{% endblock %}

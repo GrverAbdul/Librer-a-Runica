@@ -5,6 +5,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required
 from app.extensions import db
 from app.models import Category
+from app.decorators import admin_required
 
 # creacion del blueprint
 categories_bp = Blueprint(
@@ -27,7 +28,7 @@ def index():
 # crear una nueva categoria (formulario y guardado)
 # ------------------------------------------------------------
 @categories_bp.route("/create", methods=["GET", "POST"])
-@login_required
+@admin_required
 def create():
     if request.method == "POST":
         nombre = request.form["nombre"]
@@ -57,7 +58,7 @@ def create():
 # editar una categoria existente
 # ------------------------------------------------------------
 @categories_bp.route("/edit/<int:id>", methods=["GET", "POST"])
-@login_required
+@admin_required
 def edit(id):
     categoria = Category.query.get_or_404(id)
 
@@ -85,7 +86,7 @@ def edit(id):
 # eliminar una categoria
 # ------------------------------------------------------------
 @categories_bp.route("/delete/<int:id>")
-@login_required
+@admin_required
 def delete(id):
     categoria = Category.query.get_or_404(id)
     db.session.delete(categoria)

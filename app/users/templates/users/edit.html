@@ -1,0 +1,20 @@
+<!-- app/users/templates/users/edit.html -->
+{% extends "base.html" %}
+{% block title %}editar usuario{% endblock %}
+{% block content %}
+<h2>cambiar rol de {{ usuario.username }}</h2>
+<form method="post">
+    <div class="mb-3">
+        <label for="rol_id" class="form-label">nuevo rol</label>
+        <select class="form-select" id="rol_id" name="rol_id">
+            {% for rol in roles %}
+                <option value="{{ rol.id }}" {% if rol.id == usuario.rol_id %}selected{% endif %}>
+                    {{ rol.nombre }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+    <button type="submit" class="btn btn-success">guardar</button>
+    <a href="{{ url_for('users.index') }}" class="btn btn-secondary">cancelar</a>
+</form>
+{% endblock %}

@@ -16,6 +16,6 @@ login_manager = LoginManager()
 # vista a la que redirige si el usuario no esta autenticado
 login_manager.login_view = "auth.login"
 # mensaje de aviso
-login_manager.login_message = "por favor inicia sesion para acceder a esta pagina."
+login_manager.login_message = "Por favor inicia sesion para agregar al carrito."
 # categoria del mensaje flash
 login_manager.login_message_category = "warning"

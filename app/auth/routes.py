@@ -4,7 +4,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_user, logout_user, login_required
 from app.extensions import db, bcrypt
-from app.models import User, Role
+from app.models import User, Role, Customer
 
 auth_bp = Blueprint(
     "auth",
@@ -48,6 +48,10 @@ def register():
         )
 
         db.session.add(nuevo_usuario)
+        # crear perfil de cliente automático
+        db.session.flush()   # para obtener el id del usuario recién creado
+        perfil = Customer(usuario_id=nuevo_usuario.id)   # nombre y apellido se rellenan después
+        db.session.add(perfil)
         db.session.commit()
 
         flash("registro exitoso. ahora puedes iniciar sesion.", "success")

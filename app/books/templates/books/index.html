@@ -1,0 +1,46 @@
+<!-- app/books/templates/books/index.html -->
+{% extends "base.html" %}
+{% block title %}Libros{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    {% if titulo is defined %}
+        <h2>{{ titulo }}</h2>
+    {% else %}
+        <h2>Libros</h2>
+    {% endif %}
+    {% if current_user.is_authenticated and current_user.rol.nombre in ['administrador', 'empleado'] %}
+        <a href="{{ url_for('books.create') }}" class="btn btn-primary">Nuevo libro</a>
+    {% endif %}
+</div>
+
+{% if libros %}
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+    {% for libro in libros %}
+        <div class="col">
+            <div class="card h-100 border-0 shadow-sm">
+                {% if libro.imagen %}
+                    <img src="{{ url_for('static', filename='uploads/covers/' + libro.imagen) }}" class="card-img-top" alt="{{ libro.titulo }}" style="height: 200px; object-fit: cover;">
+                {% else %}
+                    <div class="bg-secondary text-white text-center py-5">Sin portada</div>
+                {% endif %}
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">{{ libro.titulo }}</h5>
+                    <p class="card-text text-muted small">{{ libro.descripcion[:80] ~ '...' if libro.descripcion else 'Sin descripción' }}</p>
+                    <p class="card-text fw-bold text-primary mb-2">Bs{{ "%.2f"|format(libro.precio) }}</p>
+                    <a href="{{ url_for('books.detail', id=libro.id) }}" class="btn btn-outline-secondary mt-auto">Ver detalle</a>
+                    {% if current_user.is_authenticated and current_user.rol.nombre in ['administrador', 'empleado'] %}
+                        <a href="{{ url_for('books.edit', id=libro.id) }}" class="btn btn-outline-warning btn-sm mt-1">Editar</a>
+                    {% endif %}
+                    {% if current_user.is_authenticated and current_user.rol.nombre == 'administrador' %}
+                        <a href="{{ url_for('books.delete', id=libro.id) }}" class="btn btn-outline-danger btn-sm mt-1"
+                           onclick="return confirm('¿Eliminar este libro?')">Eliminar</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+    </div>
+{% else %}
+    <div class="alert alert-info">No hay libros registrados.</div>
+{% endif %}
+{% endblock %}

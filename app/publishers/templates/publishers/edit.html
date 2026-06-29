@@ -1,0 +1,25 @@
+<!-- app/publishers/templates/publishers/edit.html -->
+{% extends "base.html" %}
+{% block title %}editar editorial{% endblock %}
+{% block content %}
+<h2>editar editorial</h2>
+<form method="post">
+    <div class="mb-3">
+        <label for="nombre" class="form-label">nombre *</label>
+        <input type="text" class="form-control" id="nombre" name="nombre"
+               value="{{ editorial.nombre }}" required maxlength="150">
+    </div>
+    <div class="mb-3">
+        <label for="pais" class="form-label">pais</label>
+        <input type="text" class="form-control" id="pais" name="pais"
+               value="{{ editorial.pais or '' }}" maxlength="100">
+    </div>
+    <div class="mb-3">
+        <label for="telefono" class="form-label">telefono</label>
+        <input type="text" class="form-control" id="telefono" name="telefono"
+               value="{{ editorial.telefono or '' }}" maxlength="20">
+    </div>
+    <button type="submit" class="btn btn-success">actualizar</button>
+    <a href="{{ url_for('publishers.index') }}" class="btn btn-secondary">cancelar</a>
+</form>
+{% endblock %}

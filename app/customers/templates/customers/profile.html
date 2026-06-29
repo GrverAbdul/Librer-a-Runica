@@ -1,0 +1,27 @@
+<!-- app/customers/templates/customers/profile.html -->
+{% extends "base.html" %}
+{% block title %}mi perfil{% endblock %}
+{% block content %}
+<h2>mi perfil de cliente</h2>
+<form method="post">
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label for="nombre" class="form-label">nombre</label>
+            <input type="text" class="form-control" id="nombre" name="nombre" value="{{ cliente.nombre }}" required>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label for="apellido" class="form-label">apellido</label>
+            <input type="text" class="form-control" id="apellido" name="apellido" value="{{ cliente.apellido }}" required>
+        </div>
+    </div>
+    <div class="mb-3">
+        <label for="telefono" class="form-label">telefono</label>
+        <input type="text" class="form-control" id="telefono" name="telefono" value="{{ cliente.telefono or '' }}">
+    </div>
+    <div class="mb-3">
+        <label for="direccion" class="form-label">direccion</label>
+        <textarea class="form-control" id="direccion" name="direccion" rows="3">{{ cliente.direccion or '' }}</textarea>
+    </div>
+    <button type="submit" class="btn btn-success">guardar cambios</button>
+</form>
+{% endblock %}

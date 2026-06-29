@@ -1,14 +1,79 @@
-<!-- app/main/templates/main/index.html -->
-<!-- pagina de inicio -->
+<!-- pagina de inicio con libros aleatorios, sobre nosotros y contacto -->
 
+<!-- app/main/templates/main/index.html -->
 {% extends "base.html" %}
 {% block title %}inicio{% endblock %}
 {% block content %}
-<div class="text-center">
-    <h1 class="display-4">bienvenido a la libreria runica</h1>
-    <p class="lead">tu tienda de libros favorita</p>
-    {% if not current_user.is_authenticated %}
-        <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">registrate ahora</a>
-    {% endif %}
+
+<!-- Hero con llamada a la acción -->
+<div class="p-5 mb-4 text-white rounded-3 shadow-sm"
+     style="background: url('{{ url_for('static', filename='images/logo.png') }}') center/cover no-repeat, linear-gradient(135deg, #4b3f72, #9b89b3); min-height: 350px; text-shadow: 2px 2px 4px rgba(0,0,0,0.8);">
+    <div class="container-fluid py-5 text-center">
+        <h1 class="display-5 fw-bold" style="text-shadow: 2px 2px 6px black;">📚 Librería Rúnica</h1>
+        <p class="fs-4" style="text-shadow: 7px 7px 10px dark;">Descubre mundos entre páginas</p>
+        <br>
+        {% if not current_user.is_authenticated %}
+            <a href="{{ url_for('auth.register') }}" class="btn btn-light btn-lg mt-3">Comienza tu aventura</a>
+        {% else %}
+            <a href="{{ url_for('books.index') }}" class="btn btn-light btn-lg mt-3">Ver libros</a>
+        {% endif %}
+    </div>
 </div>
+
+<!-- Libros destacados aleatorios-->
+<h2 class="mb-4 text-secondary fw-bold">📖 Libros destacados</h2>
+{% if libros_aleatorios %}
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+    {% for libro in libros_aleatorios %}
+        <div class="col">
+            <div class="card h-100 border-0 shadow-sm">
+                {% if libro.imagen %}
+                    <img src="{{ url_for('static', filename='uploads/covers/' + libro.imagen) }}" class="card-img-top" alt="{{ libro.titulo }}" style="height: 200px; object-fit: cover;">
+                {% else %}
+                    <div class="bg-secondary text-white text-center py-5">Sin portada</div>
+                {% endif %}
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">{{ libro.titulo }}</h5>
+                    <p class="card-text text-muted small">{{ libro.descripcion[:80] ~ '...' if libro.descripcion else 'sin descripción' }}</p>
+                    <p class="card-text fw-bold text-primary mb-2">Bs.{{ "%.2f"|format(libro.precio) }}</p>
+                    <a href="{{ url_for('books.detail', id=libro.id) }}" class="btn btn-outline-secondary mt-auto">Ver detalle</a>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+    </div>
+{% else %}
+    <div class="alert alert-warning">No hay libros disponibles en este momento.</div>
+{% endif %}
+
+<hr class="my-5">
+
+<!-- Sobre nosotros y contacto con diseño mejorado -->
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <h2 class="card-title text-secondary fw-bold">📌 Sobre nosotros</h2>
+                <p>Somos una librería comprometida con la difusión de la literatura y el conocimiento. ofrecemos una amplia selección de libros de todos los géneros, con un servicio personalizado y envíos rápidos.</p>
+                <p>Nuestra misión es fomentar la lectura en la comunidad, brindando un espacio virtual donde puedas encontrar tus libros favoritos y descubrir nuevas historias.</p>
+                <p>Visitanos en nuestras tiendas, quedas invitado cordialmente.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <h2 class="card-title text-secondary fw-bold">📞 Contacto</h2>
+                <p>¿Tienes alguna pregunta o sugerencia? no dudes en ponerte en contacto con nosotros.</p>
+                <ul class="list-unstyled">
+                    <li class="mb-2"><strong>Dirección:</strong> Calle ficticia 123, Ciudad de los libros</li>
+                    <li class="mb-2"><strong>Teléfono:</strong> (555) 1234-5678</li>
+                    <li class="mb-2"><strong>Correo:</strong> groverabdul@libreriarunica.com</li>
+                    <li><strong>horario:</strong> Lunes a viernes de 9:00 a 18:00</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}

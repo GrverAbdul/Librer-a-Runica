@@ -1,2 +1,25 @@
 /* static/css/style.css */
 /* estilos personalizados - por ahora vacio */
+/* efecto hover suave en tarjetas */
+.card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+}
+
+/* botones más redondeados */
+.btn {
+    border-radius: 0.5rem;
+}
+
+/* fondo gradiente personalizado para el hero */
+.hero-gradient {
+    background: linear-gradient(135deg, #4b3f72, #9b89b3);
+}
+
+/* opcional: animación suave en los números */
+.card-title {
+    transition: color 0.3s ease;
+}

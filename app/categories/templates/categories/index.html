@@ -6,28 +6,34 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h2>categorias</h2>
-    <a href="{{ url_for('categories.create') }}" class="btn btn-primary">nueva categoria</a>
+    {% if current_user.is_authenticated and current_user.rol.nombre == 'administrador' %}
+        <a href="{{ url_for('categories.create') }}" class="btn btn-primary">nueva categoria</a>
+    {% endif %}
 </div>
 
 {% if categorias %}
-    <table class="table table-bordered table-hover">
+<table class="table table-striped table-hover align-middle">
         <thead class="table-dark">
             <tr>
                 <th>nombre</th>
                 <th>descripcion</th>
-                <th>acciones</th>
+                {% if current_user.is_authenticated and current_user.rol.nombre == 'administrador' %}
+                    <th>acciones</th>
+                {% endif %}
             </tr>
         </thead>
         <tbody>
         {% for cat in categorias %}
             <tr>
-                <td>{{ cat.nombre }}</td>
+                <td><a href="{{ url_for('books.by_category', category_id=cat.id) }}">{{ cat.nombre }}</a></td>
                 <td>{{ cat.descripcion or '' }}</td>
-                <td>
-                    <a href="{{ url_for('categories.edit', id=cat.id) }}" class="btn btn-sm btn-warning">editar</a>
-                    <a href="{{ url_for('categories.delete', id=cat.id) }}" class="btn btn-sm btn-danger"
-                       onclick="return confirm('¿eliminar esta categoria?')">eliminar</a>
-                </td>
+                {% if current_user.is_authenticated and current_user.rol.nombre == 'administrador' %}
+                    <td>
+                        <a href="{{ url_for('categories.edit', id=cat.id) }}" class="btn btn-sm btn-warning">editar</a>
+                        <a href="{{ url_for('categories.delete', id=cat.id) }}" class="btn btn-sm btn-danger"
+                           onclick="return confirm('¿eliminar esta categoria?')">eliminar</a>
+                    </td>
+                {% endif %}
             </tr>
         {% endfor %}
         </tbody>

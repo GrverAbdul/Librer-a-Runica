@@ -1,0 +1,42 @@
+<!-- app/authors/templates/authors/index.html -->
+{% extends "base.html" %}
+{% block title %}autores{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>autores</h2>
+    {% if current_user.is_authenticated and current_user.rol.nombre == 'administrador' %}
+        <a href="{{ url_for('authors.create') }}" class="btn btn-primary">nuevo autor</a>
+    {% endif %}
+</div>
+
+{% if autores %}
+    <table class="table table-striped table-hover align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th>nombre</th>
+                <th>nacionalidad</th>
+                {% if current_user.is_authenticated and current_user.rol.nombre == 'administrador' %}
+                    <th>acciones</th>
+                {% endif %}
+            </tr>
+        </thead>
+        <tbody>
+        {% for autor in autores %}
+            <tr>
+                <td><a href="{{ url_for('books.by_author', author_id=autor.id) }}">{{ autor.nombre }}</a></td>
+                <td>{{ autor.nacionalidad or '' }}</td>
+                {% if current_user.is_authenticated and current_user.rol.nombre == 'administrador' %}
+                    <td>
+                        <a href="{{ url_for('authors.edit', id=autor.id) }}" class="btn btn-sm btn-warning">editar</a>
+                        <a href="{{ url_for('authors.delete', id=autor.id) }}" class="btn btn-sm btn-danger"
+                           onclick="return confirm('¿eliminar este autor?')">eliminar</a>
+                    </td>
+                {% endif %}
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <div class="alert alert-info">no hay autores registrados.</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,22 @@
+<!-- app/authors/templates/authors/create.html -->
+{% extends "base.html" %}
+{% block title %}crear autor{% endblock %}
+{% block content %}
+<h2>crear autor</h2>
+<form method="post">
+    <div class="mb-3">
+        <label for="nombre" class="form-label">nombre *</label>
+        <input type="text" class="form-control" id="nombre" name="nombre" required maxlength="150">
+    </div>
+    <div class="mb-3">
+        <label for="nacionalidad" class="form-label">nacionalidad</label>
+        <input type="text" class="form-control" id="nacionalidad" name="nacionalidad" maxlength="100">
+    </div>
+    <div class="mb-3">
+        <label for="biografia" class="form-label">biografia</label>
+        <textarea class="form-control" id="biografia" name="biografia" rows="4"></textarea>
+    </div>
+    <button type="submit" class="btn btn-success">guardar</button>
+    <a href="{{ url_for('authors.index') }}" class="btn btn-secondary">cancelar</a>
+</form>
+{% endblock %}

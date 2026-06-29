@@ -18,7 +18,6 @@ categories_bp = Blueprint(
 # listar todas las categorias
 # ------------------------------------------------------------
 @categories_bp.route("/")
-@login_required                     # solo usuarios autenticados
 def index():
     # obtener todas las categorias ordenadas por nombre
     categorias = Category.query.order_by(Category.nombre).all()
@@ -28,6 +27,7 @@ def index():
 # crear una nueva categoria (formulario y guardado)
 # ------------------------------------------------------------
 @categories_bp.route("/create", methods=["GET", "POST"])
+@login_required
 @admin_required
 def create():
     if request.method == "POST":
@@ -41,10 +41,7 @@ def create():
             return redirect(url_for("categories.create"))
 
         # crear el nuevo objeto categoria
-        nueva_categoria = Category(
-            nombre=nombre,
-            descripcion=descripcion
-        )
+        nueva_categoria = Category(nombre=nombre, descripcion=descripcion)
         db.session.add(nueva_categoria)
         db.session.commit()
 
@@ -58,6 +55,7 @@ def create():
 # editar una categoria existente
 # ------------------------------------------------------------
 @categories_bp.route("/edit/<int:id>", methods=["GET", "POST"])
+@login_required
 @admin_required
 def edit(id):
     categoria = Category.query.get_or_404(id)
@@ -86,6 +84,7 @@ def edit(id):
 # eliminar una categoria
 # ------------------------------------------------------------
 @categories_bp.route("/delete/<int:id>")
+@login_required
 @admin_required
 def delete(id):
     categoria = Category.query.get_or_404(id)

@@ -1,0 +1,82 @@
+<!-- app/reports/templates/reports/inventory.html -->
+{% extends "base.html" %}
+{% block title %}Reporte de Inventario{% endblock %}
+{% block content %}
+<h2>Reporte de inventario</h2>
+
+<!-- Libros con stock bajo -->
+<h4 class="mt-4">Libros con stock bajo (< 5)</h4>
+{% if stock_bajo %}
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+            <thead class="table-danger">
+                <tr>
+                    <th>Título</th>
+                    <th>Stock</th>
+                    <th>Precio</th>
+                    {% if current_user.is_authenticated and current_user.rol.nombre in ['administrador', 'empleado'] %}
+                        <th>Acciones</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+            {% for libro in stock_bajo %}
+                <tr>
+                    <td>{{ libro.titulo }}</td>
+                    <td>
+                        <form method="post" action="{{ url_for('reports.update_stock', book_id=libro.id) }}" class="d-inline">
+                            <input type="number" name="stock" value="{{ libro.stock }}" min="0" class="form-control form-control-sm d-inline" style="width: 80px;">
+                            <button type="submit" class="btn btn-sm btn-outline-success">Actualizar</button>
+                        </form>
+                    </td>
+                    <td>Bs{{ "%.2f"|format(libro.precio) }}</td>
+                    {% if current_user.is_authenticated and current_user.rol.nombre in ['administrador', 'empleado'] %}
+                        <td>
+                            <a href="{{ url_for('books.edit', id=libro.id) }}" class="btn btn-sm btn-warning">Editar</a>
+                        </td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="alert alert-success">Todos los libros tienen stock suficiente.</div>
+{% endif %}
+
+<!-- Todo el inventario -->
+<h4 class="mt-4">Todo el inventario</h4>
+<div class="table-responsive">
+    <table class="table table-bordered table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>Título</th>
+                <th>Stock</th>
+                <th>Precio</th>
+                {% if current_user.is_authenticated and current_user.rol.nombre in ['administrador', 'empleado'] %}
+                    <th>Acciones</th>
+                {% endif %}
+            </tr>
+        </thead>
+        <tbody>
+        {% for libro in todos_libros %}
+            <tr class="{{ 'table-danger' if libro.stock < 5 else '' }}">
+                <td>{{ libro.titulo }}</td>
+                <td>
+                    <form method="post" action="{{ url_for('reports.update_stock', book_id=libro.id) }}" class="d-inline">
+                        <input type="number" name="stock" value="{{ libro.stock }}" min="0" class="form-control form-control-sm d-inline" style="width: 80px;">
+                        <button type="submit" class="btn btn-sm btn-outline-success">Actualizar</button>
+                    </form>
+                </td>
+                <td>Bs{{ "%.2f"|format(libro.precio) }}</td>
+                {% if current_user.is_authenticated and current_user.rol.nombre in ['administrador', 'empleado'] %}
+                    <td>
+                        <a href="{{ url_for('books.edit', id=libro.id) }}" class="btn btn-sm btn-warning">Editar</a>
+                    </td>
+                {% endif %}
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

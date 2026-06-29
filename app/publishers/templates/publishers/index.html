@@ -1,0 +1,44 @@
+<!-- app/publishers/templates/publishers/index.html -->
+{% extends "base.html" %}
+{% block title %}editoriales{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>editoriales</h2>
+    {% if current_user.is_authenticated and current_user.rol.nombre == 'administrador' %}
+        <a href="{{ url_for('publishers.create') }}" class="btn btn-primary">nueva editorial</a>
+    {% endif %}
+</div>
+
+{% if editoriales %}
+<table class="table table-striped table-hover align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th>nombre</th>
+                <th>pais</th>
+                <th>telefono</th>
+                {% if current_user.is_authenticated and current_user.rol.nombre == 'administrador' %}
+                    <th>acciones</th>
+                {% endif %}
+            </tr>
+        </thead>
+        <tbody>
+        {% for editorial in editoriales %}
+            <tr>
+                <td><a href="{{ url_for('books.by_publisher', publisher_id=editorial.id) }}">{{ editorial.nombre }}</a></td>
+                <td>{{ editorial.pais or '' }}</td>
+                <td>{{ editorial.telefono or '' }}</td>
+                {% if current_user.is_authenticated and current_user.rol.nombre == 'administrador' %}
+                    <td>
+                        <a href="{{ url_for('publishers.edit', id=editorial.id) }}" class="btn btn-sm btn-warning">editar</a>
+                        <a href="{{ url_for('publishers.delete', id=editorial.id) }}" class="btn btn-sm btn-danger"
+                           onclick="return confirm('¿eliminar esta editorial?')">eliminar</a>
+                    </td>
+                {% endif %}
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <div class="alert alert-info">no hay editoriales registradas.</div>
+{% endif %}
+{% endblock %}

@@ -39,6 +39,9 @@ class User(db.Model, UserMixin):
     # relacion con el carrito (un usuario puede tener un carrito activo)
     carrito = db.relationship("Cart", back_populates="usuario", uselist=False, cascade="all, delete-orphan")
 
+    # relación con el perfil de cliente (uno a uno)
+    perfil_cliente = db.relationship("Customer", back_populates="usuario", uselist=False, cascade="all, delete-orphan")
+    
     def get_id(self):
         return str(self.id)
 
@@ -134,22 +137,27 @@ class Book(db.Model):
 # ------------------------------------------------------------
 # modelo: cliente
 # ------------------------------------------------------------
+# modelo: cliente (perfil de compra)
 class Customer(db.Model):
     __tablename__ = "clientes"
 
     id = db.Column(db.Integer, primary_key=True)
-    nombre = db.Column(db.String(100), nullable=False)
-    apellido = db.Column(db.String(100), nullable=False)
+    usuario_id = db.Column(db.Integer, db.ForeignKey("usuarios.id", name="fk_clientes_usuarios"), unique=True, nullable=False)
+    nombre = db.Column(db.String(100), nullable=False, default="")
+    apellido = db.Column(db.String(100), nullable=False, default="")
     telefono = db.Column(db.String(20))
-    correo = db.Column(db.String(150), unique=True, nullable=False)
     direccion = db.Column(db.Text)
 
-    # relacion inversa con pedidos
+    __table_args__ = (
+        db.UniqueConstraint('usuario_id', name='uq_clientes_usuario_id'),
+    )
+    # relación con el usuario
+    usuario = db.relationship("User", back_populates="perfil_cliente")
+    # relación inversa con pedidos
     pedidos = db.relationship("Order", back_populates="cliente", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<Customer {self.nombre} {self.apellido}>"
-
 
 # ------------------------------------------------------------
 # modelo: carrito de compras (uno por usuario)
@@ -201,7 +209,8 @@ class Order(db.Model):
     fecha = db.Column(db.DateTime, default=datetime.utcnow)
     total = db.Column(db.Float, nullable=False)
     estado = db.Column(db.String(20), default="pendiente")  # pendiente, enviado, entregado
-
+    fecha_envio = db.Column(db.DateTime, nullable=True)
+    fecha_entrega = db.Column(db.DateTime, nullable=True)
     # relaciones
     cliente = db.relationship("Customer", back_populates="pedidos")
     detalles = db.relationship("OrderDetail", back_populates="pedido", cascade="all, delete-orphan")

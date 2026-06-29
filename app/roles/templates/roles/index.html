@@ -1,0 +1,32 @@
+<!-- app/roles/templates/roles/index.html -->
+{% extends "base.html" %}
+{% block title %}roles{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>roles del sistema</h2>
+    <a href="{{ url_for('roles.create') }}" class="btn btn-primary">nuevo rol</a>
+</div>
+<table class="table table-striped table-hover align-middle">
+    <thead class="table-dark">
+        <tr>
+            <th>nombre</th>
+            <th>acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for r in roles %}
+        <tr>
+            <td>{{ r.nombre }}</td>
+            <td>
+                {% if not r.usuarios %}
+                <a href="{{ url_for('roles.delete', id=r.id) }}" class="btn btn-sm btn-danger"
+                   onclick="return confirm('¿eliminar rol?')">eliminar</a>
+                {% else %}
+                <span class="text-muted">en uso</span>
+                {% endif %}
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

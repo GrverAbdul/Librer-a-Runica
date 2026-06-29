@@ -5,20 +5,20 @@
 <h2>editar autor</h2>
 <form method="post">
     <div class="mb-3">
-        <label for="nombre" class="form-label">nombre *</label>
+        <label for="nombre" class="form-label">Nombre *</label>
         <input type="text" class="form-control" id="nombre" name="nombre"
                value="{{ autor.nombre }}" required maxlength="150">
     </div>
     <div class="mb-3">
-        <label for="nacionalidad" class="form-label">nacionalidad</label>
+        <label for="nacionalidad" class="form-label">Nacionalidad</label>
         <input type="text" class="form-control" id="nacionalidad" name="nacionalidad"
                value="{{ autor.nacionalidad or '' }}" maxlength="100">
     </div>
     <div class="mb-3">
-        <label for="biografia" class="form-label">biografia</label>
+        <label for="biografia" class="form-label">Biografía</label>
         <textarea class="form-control" id="biografia" name="biografia" rows="4">{{ autor.biografia or '' }}</textarea>
     </div>
-    <button type="submit" class="btn btn-success">actualizar</button>
+    <button type="submit" class="btn btn-success">Actualizar</button>
     <a href="{{ url_for('authors.index') }}" class="btn btn-secondary">cancelar</a>
 </form>
 {% endblock %}

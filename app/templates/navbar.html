@@ -1,10 +1,8 @@
 <!-- app/templates/navbar.html -->
-<!-- barra de navegacion principal -->
-
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
         <a class="navbar-brand" href="{{ url_for('main.index') }}">
-            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="libreria runica" height="40">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Librería Rúnica" height="40">
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
             <span class="navbar-toggler-icon"></span>
@@ -12,21 +10,20 @@
 
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <!-- enlace publico a categorias -->
+                <!-- Enlaces públicos -->
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('categories.index') }}">Categorias</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('authors.index') }}">Autores</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('publishers.index') }}">Editoriales</a>
+                    <a class="nav-link" href="{{ url_for('categories.index') }}">Categorías</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('books.index') }}">Libros</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('mapas.index') }}">Mapa</a>
+                </li>
+
                 {% if current_user.is_authenticated %}
-                    {% if current_user.is_authenticated and current_user.rol.nombre == 'cliente' %}
+                    <!-- Solo clientes ven carrito y pedidos -->
+                    {% if current_user.rol.nombre == 'cliente' %}
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('cart.index') }}">Carrito</a>
                         </li>
@@ -34,38 +31,38 @@
                             <a class="nav-link" href="{{ url_for('orders.history') }}">Mis pedidos</a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('customers.profile') }}">Mi perfil</a>
+                        </li>
                     {% endif %}
-                        <a class="nav-link" href="{{ url_for('customers.profile') }}">Mi perfil</a>
-                    </li>
-                {% endif %}
 
-                <!--con auntenticacion-->
-                {% if current_user.is_authenticated %}
+                    <!-- Menú de gestión para admin y empleado -->
                     {% if current_user.rol.nombre in ['administrador', 'empleado'] %}
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 Gestión
                             </a>
                             <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{{ url_for('mapas.calor') }}">Mapa de calor</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('dashboard.index') }}">Dashboard</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                {% if current_user.rol.nombre == 'administrador' %}
+                                    <li><a class="dropdown-item" href="{{ url_for('categories.index') }}">Categorías</a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('authors.index') }}">Autores</a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('publishers.index') }}">Editoriales</a></li>
+                                {% endif %}
                                 <li><a class="dropdown-item" href="{{ url_for('books.index') }}">Libros</a></li>
+                                {% if current_user.rol.nombre == 'administrador' %}
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('users.index') }}">Usuarios</a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('roles.index') }}">Roles</a></li>
+                                {% endif %}
                                 <li><a class="dropdown-item" href="{{ url_for('customers.index') }}">Clientes</a></li>
                                 <li><a class="dropdown-item" href="{{ url_for('orders.admin_index') }}">Pedidos</a></li>
-                                {% if current_user.rol.nombre == 'administrador' %}
-                                <li><a class="dropdown-item" href="{{ url_for('categories.index') }}">Categorias</a></li>
-                                <li><a class="dropdown-item" href="{{ url_for('authors.index') }}">Autores</a></li>
-                                <li><a class="dropdown-item" href="{{ url_for('publishers.index') }}">Editoriales</a></li>
                                 <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="{{ url_for('users.index') }}">Usuarios</a></li>
-                                <li><a class="dropdown-item" href="{{ url_for('roles.index') }}">Roles</a></li>
-                                {% endif %}
-                                {% if current_user.rol.nombre == 'administrador' or current_user.rol.nombre == 'empleado' %}
                                 <li><a class="dropdown-item" href="{{ url_for('reports.sales') }}">Reporte de ventas</a></li>
                                 <li><a class="dropdown-item" href="{{ url_for('reports.inventory') }}">Reporte de inventario</a></li>
-                                {% endif %}
-                                <!-- Para añadir mas modulos -->
                             </ul>
                         </li>
-                        <li class="nav-item"><a class="nav-link" href="{{ url_for('dashboard.index') }}">Dashboard</a></li>
                     {% endif %}
                 {% endif %}
             </ul>
@@ -76,11 +73,11 @@
                         <span class="navbar-text me-3">Hola, {{ current_user.username }}</span>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('auth.logout') }}">Cerrar sesion</a>
+                        <a class="nav-link" href="{{ url_for('auth.logout') }}">Cerrar sesión</a>
                     </li>
                 {% else %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('auth.login') }}">Iniciar sesion</a>
+                        <a class="nav-link" href="{{ url_for('auth.login') }}">Iniciar sesión</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('auth.register') }}">Registrarse</a>

@@ -34,14 +34,17 @@
         {% for d in pedido.detalles %}
             <tr>
                 <td>{{ d.libro.titulo }}</td>
-                <td>Bs.{{ "%.2f"|format(d.precio) }}</td>
+                <td>Bs. {{ "%.2f"|format(d.precio) }}</td>
                 <td>{{ d.cantidad }}</td>
-                <td>Bs.{{ "%.2f"|format(d.precio * d.cantidad) }}</td>
+                <td>Bs. {{ "%.2f"|format(d.precio * d.cantidad) }}</td>
             </tr>
         {% endfor %}
         </tbody>
     </table>
 </div>
-<h4>total: Bs.{{ "%.2f"|format(pedido.total) }}</h4>
+<h4>total: Bs. {{ "%.2f"|format(pedido.total) }}</h4>
 <a href="javascript:history.back()" class="btn btn-secondary">volver</a>
+{% if pedido.estado == 'enviado' and pedido.sucursal and pedido.cliente.latitud %}
+    <a href="{{ url_for('orders.tracking', id=pedido.id) }}" class="btn btn-info">🗺️ Ver seguimiento</a>
+{% endif %}
 {% endblock %}

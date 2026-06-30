@@ -29,7 +29,7 @@
                             <button type="submit" class="btn btn-sm btn-outline-success">Actualizar</button>
                         </form>
                     </td>
-                    <td>Bs{{ "%.2f"|format(libro.precio) }}</td>
+                    <td>Bs. {{ "%.2f"|format(libro.precio) }}</td>
                     {% if current_user.is_authenticated and current_user.rol.nombre in ['administrador', 'empleado'] %}
                         <td>
                             <a href="{{ url_for('books.edit', id=libro.id) }}" class="btn btn-sm btn-warning">Editar</a>
@@ -68,7 +68,7 @@
                         <button type="submit" class="btn btn-sm btn-outline-success">Actualizar</button>
                     </form>
                 </td>
-                <td>Bs{{ "%.2f"|format(libro.precio) }}</td>
+                <td>Bs. {{ "%.2f"|format(libro.precio) }}</td>
                 {% if current_user.is_authenticated and current_user.rol.nombre in ['administrador', 'empleado'] %}
                     <td>
                         <a href="{{ url_for('books.edit', id=libro.id) }}" class="btn btn-sm btn-warning">Editar</a>

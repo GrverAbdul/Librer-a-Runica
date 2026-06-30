@@ -18,14 +18,17 @@ cart_bp = Blueprint(
 @cart_bp.route("/")
 @login_required
 def index():
+    # obtener o crear el carrito del usuario actual
     carrito = Cart.query.filter_by(usuario_id=current_user.id).first()
     if not carrito:
-        # crear carrito automaticamente si no existe
         carrito = Cart(usuario_id=current_user.id)
         db.session.add(carrito)
         db.session.commit()
-    return render_template("cart/cart.html", carrito=carrito)
 
+    # calcular el total sumando los subtotales de cada item
+    total = sum(item.subtotal for item in carrito.items)
+
+    return render_template("cart/cart.html", carrito=carrito, total=total)
 # ------------------------------------------------------------
 # agregar libro al carrito
 # ------------------------------------------------------------

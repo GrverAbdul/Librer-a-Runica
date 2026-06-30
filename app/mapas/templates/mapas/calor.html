@@ -1,0 +1,56 @@
+<!-- app/mapas/templates/mapas/calor.html -->
+{% extends "base.html" %}
+{% block title %}Mapa de Calor de Clientes y Entregas{% endblock %}
+{% block content %}
+<h2>Análisis de Concentración</h2>
+<p>Este mapa muestra la densidad de clientes registrados (rojo) y de entregas realizadas (verde).</p>
+
+<div id="map" style="height: 500px; border-radius: 0.5rem;"></div>
+
+<div class="mt-3">
+    <span style="background: red; padding: 2px 8px; border-radius: 4px; color: white;">Clientes</span>
+    <span style="background: green; padding: 2px 8px; border-radius: 4px; color: white; margin-left: 10px;">Entregas</span>
+</div>
+<a href="{{ url_for('mapas.index') }}" class="btn btn-secondary mt-3">Volver al mapa general</a>
+{% endblock %}
+
+{% block scripts %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
+
+<script>
+    var map = L.map('map').setView([-16.5, -68.15], 12);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Capa de clientes (rojo)
+    fetch("{{ url_for('mapas.api_clientes') }}")
+        .then(response => response.json())
+        .then(puntos => {
+            if (puntos.length > 0) {
+                L.heatLayer(puntos, {
+                    radius: 25,
+                    blur: 15,
+                    maxZoom: 17,
+                    gradient: {0.4: 'orange', 0.65: 'red', 1: 'darkred'}
+                }).addTo(map);
+            }
+        });
+
+    // Capa de entregas (verde)
+    fetch("{{ url_for('mapas.api_entregas') }}")
+        .then(response => response.json())
+        .then(puntos => {
+            if (puntos.length > 0) {
+                L.heatLayer(puntos, {
+                    radius: 25,
+                    blur: 15,
+                    maxZoom: 17,
+                    gradient: {0.4: 'lime', 0.65: 'green', 1: 'darkgreen'}
+                }).addTo(map);
+            }
+        });
+</script>
+{% endblock %}

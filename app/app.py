@@ -1,53 +1,57 @@
 # app/app.py
-# fabrica de aplicaciones flask, inicializa extensiones y registra blueprints
+# fábrica de aplicaciones flask, inicializa extensiones y registra blueprints
 
-from flask import Flask
+from datetime import datetime
+from flask import Flask, render_template
 from flask_migrate import Migrate
 from app.config import Config
 from app.extensions import db, bcrypt, login_manager
-# importa todos los modelos para que Alembic los detecte
-import app.models
-import click
-from app.models import Role, User
-from flask import render_template
+# scheduler para la simulación de entregas en segundo plano
+from apscheduler.schedulers.background import BackgroundScheduler
+import app.models           # necesario para que alembic detecte los modelos
+import requests as http_requests
+from zoneinfo import ZoneInfo
 
 migrate = Migrate()
 
 def create_app():
-    # crear la instancia de la aplicacion
+    # crear la instancia de la aplicación
     app = Flask(__name__, static_folder='../static')
 
-    # cargar configuracion desde la clase config (y variables de entorno)
+    # cargar configuración desde la clase Config (y variables de entorno)
     app.config.from_object(Config)
 
-    # inicializar extensiones con la aplicacion
+    # inicializar extensiones con la aplicación
     db.init_app(app)
     bcrypt.init_app(app)
     login_manager.init_app(app)
     migrate.init_app(app, db)
 
-    # registra el cargador de usuarios para flask-login
+    # Inicializar el scheduler en segundo plano
+    scheduler = BackgroundScheduler()
+    scheduler.start()
+
     @login_manager.user_loader
     def load_user(user_id):
         from app.models import User
         return User.query.get(int(user_id))
 
     # -------------------------------------------------------------
-    # comando personalizado para sembrar la base de datos
+    # comandos personalizados de flask
     # -------------------------------------------------------------
+    import click
+    from app.models import Role, User
+
     @app.cli.command("seed")
-    # parainsertar roles y usuario admin flask seed desde terminal
     def seed():
-        """creación los roles basicos y un usuario administrador."""
-        # crear roles si no existen
-        for nombre in ["administrador", "cliente", "empleado", "repartidor"]:
+        """crea los roles básicos y un usuario administrador."""
+        for nombre in ["administrador", "cliente", "empleado"]:
             if not Role.query.filter_by(nombre=nombre).first():
                 db.session.add(Role(nombre=nombre))
         db.session.commit()
 
         # crear usuario admin por defecto si no existe
         if not User.query.filter_by(username="admin").first():
-            from app.extensions import bcrypt
             admin_role = Role.query.filter_by(nombre="administrador").first()
             hashed_pw = bcrypt.generate_password_hash("123").decode("utf-8")
             admin_user = User(
@@ -60,17 +64,17 @@ def create_app():
             db.session.commit()
             print("usuario admin creado (admin / 123)")
         print("datos sembrados correctamente.")
-    
-        # -------------------------------------------------------------
-    # comando para sembrar 50 libros de prueba con descripciones
-    # -------------------------------------------------------------
+
     @app.cli.command("seed-books")
     def seed_books():
-        """inserta 50 libros de prueba con datos realistas y descripciones."""
-        from app.models import Category, Author, Publisher, Book
+        """inserta 50 libros de prueba si la tabla está vacía."""
+        from app.models import Book, Category, Author, Publisher
         import random
 
-        # (título, autor, editorial, categoría, descripción)
+        if Book.query.first():
+            print("Ya existen libros en la base de datos. No se insertaron duplicados.")
+            return
+
         libros_data = [
             ("Cien años de soledad", "Gabriel García Márquez", "Editorial Sudamericana", "Ficción",
              "La historia de la familia Buendía en el mítico Macondo, un clásico del realismo mágico."),
@@ -174,6 +178,7 @@ def create_app():
              "Principios y buenas prácticas para escribir código limpio, mantenible y eficiente."),
         ]
 
+
         for titulo, autor_nombre, editorial_nombre, categoria_nombre, descripcion in libros_data:
             # Categoría
             cat = Category.query.filter_by(nombre=categoria_nombre).first()
@@ -216,16 +221,100 @@ def create_app():
 
         db.session.commit()
         print("50 libros de prueba con descripciones insertados correctamente.")
-    #errores
-    @app.errorhandler(404)
-    def not_found(e):
-        return render_template("errors/404.html"), 404
 
-    @app.errorhandler(500)
-    def internal_error(e):
-        return render_template("errors/500.html"), 500
-    
+    #sucursales y sus zonas de coberturas
+    @app.cli.command("seed-sig")
+    def seed_sig():
+        """Inserta sucursales y zonas de cobertura desde archivos GeoJSON (QGIS)."""
+        import json
+        import os
+        from app.models import Sucursal, ZonaCobertura
+
+        # ------------------------------------------------------------
+        # 1. Eliminar datos antiguos
+        # ------------------------------------------------------------
+        Sucursal.query.delete()
+        ZonaCobertura.query.delete()
+
+        # ------------------------------------------------------------
+        # 2. Leer el archivo de sucursales (puntos)
+        # ------------------------------------------------------------
+        ruta_sucursales = os.path.join('static', 'geojson', 'sucursales.geojson')
+        with open(ruta_sucursales, 'r', encoding='utf-8') as f:
+            sucursales_data = json.load(f)
+
+        for feature in sucursales_data['features']:
+            lon, lat = feature['geometry']['coordinates']  # GeoJSON usa [lon, lat]
+            props = feature['properties']
+            db.session.add(Sucursal(
+                nombre=props.get('nombre', 'Sin nombre'),
+                direccion=props.get('direccion', ''),
+                telefono=props.get('telefono', ''),
+                latitud=lat,
+                longitud=lon
+            ))
+        print(f"{len(sucursales_data['features'])} sucursales insertadas desde GeoJSON.")
+
+        # ------------------------------------------------------------
+        # 3. Leer el archivo de zonas de cobertura (polígonos)
+        # ------------------------------------------------------------
+        ruta_coberturas = os.path.join('static', 'geojson', 'coberturas.geojson')
+        with open(ruta_coberturas, 'r', encoding='utf-8') as f:
+            coberturas_data = json.load(f)
+
+        for feature in coberturas_data['features']:
+            props = feature['properties']
+            geom_str = json.dumps(feature['geometry'])  # guardar geometría como string JSON
+            db.session.add(ZonaCobertura(
+                nombre=props.get('nombre', 'Sin nombre'),
+                descripcion=props.get('descripcion', ''),
+                geojson=geom_str
+            ))
+        print(f"{len(coberturas_data['features'])} zonas de cobertura insertadas desde GeoJSON.")
+
+        # ------------------------------------------------------------
+        # 4. Guardar cambios
+        # ------------------------------------------------------------
+        db.session.commit()
+        print("¡Datos SIG actualizados correctamente desde archivos GeoJSON!")
+        
+    # -------------------------------------------------------------
+    # tarea en segundo plano para avanzar simulaciones de reparto
+    # -------------------------------------------------------------
+    def avanzar_simulaciones():
+        """cada 10 segundos avanza el progreso de los pedidos en estado 'enviado'."""
+        with app.app_context():
+            from app.models import Order
+            pedidos = Order.query.filter_by(estado="enviado", simulacion_activa=True).all()
+            for pedido in pedidos:
+                if not pedido.sucursal or not pedido.cliente.latitud or not pedido.cliente.longitud:
+                    continue
+
+                url = f"https://router.project-osrm.org/route/v1/driving/{pedido.sucursal.longitud},{pedido.sucursal.latitud};{pedido.cliente.longitud},{pedido.cliente.latitud}?overview=full&geometries=geojson"
+                try:
+                    resp = http_requests.get(url, timeout=5)
+                    if resp.status_code == 200:
+                        data = resp.json()
+                        if data["routes"]:
+                            total_puntos = len(data["routes"][0]["geometry"]["coordinates"])
+                            # Avanzar más rápido (2 puntos por intervalo)
+                            if pedido.progreso_simulacion < total_puntos - 1:
+                                pedido.progreso_simulacion += 3
+                            else:
+                                # Marcar como entregado al llegar al final
+                                pedido.estado = "entregado"
+                                pedido.fecha_entrega = pedido.fecha_entrega = datetime.now(ZoneInfo("America/La_Paz")).replace(tzinfo=None)
+                                pedido.simulacion_activa = False
+                except Exception as e:
+                    print(f"Error en simulación del pedido {pedido.id}: {e}")
+
+            db.session.commit()
+
+    scheduler.add_job(avanzar_simulaciones, 'interval', seconds=3)
+
+    # -------------------------------------------------------------
     # importar y registrar blueprints
+    # -------------------------------------------------------------
     from app.main.routes import main_bp
     from app.auth.routes import auth_bp
     from app.categories.routes import categories_bp
@@ -239,8 +328,8 @@ def create_app():
     from app.orders.routes import orders_bp
     from app.dashboard.routes import dashboard_bp
     from app.reports.routes import reports_bp
+    from app.mapas.routes import mapas_bp
 
-    # registro de los blueprints con sus prefijos
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp, url_prefix="/auth")
     app.register_blueprint(categories_bp, url_prefix="/categories")
@@ -254,6 +343,15 @@ def create_app():
     app.register_blueprint(orders_bp, url_prefix="/orders")
     app.register_blueprint(dashboard_bp, url_prefix="/dashboard")
     app.register_blueprint(reports_bp, url_prefix="/reports")
+    app.register_blueprint(mapas_bp, url_prefix="/mapas")
+
+    # manejo de errores personalizados
+    @app.errorhandler(404)
+    def not_found(e):
+        return render_template("errors/404.html"), 404
+
+    @app.errorhandler(500)
+    def internal_error(e):
+        return render_template("errors/500.html"), 500
 
     return app
-

@@ -35,7 +35,7 @@
                 <div class="card-body d-flex flex-column">
                     <h5 class="card-title">{{ libro.titulo }}</h5>
                     <p class="card-text text-muted small">{{ libro.descripcion[:80] ~ '...' if libro.descripcion else 'sin descripción' }}</p>
-                    <p class="card-text fw-bold text-primary mb-2">Bs.{{ "%.2f"|format(libro.precio) }}</p>
+                    <p class="card-text fw-bold text-primary mb-2">Bs. {{ "%.2f"|format(libro.precio) }}</p>
                     <a href="{{ url_for('books.detail', id=libro.id) }}" class="btn btn-outline-secondary mt-auto">Ver detalle</a>
                 </div>
             </div>

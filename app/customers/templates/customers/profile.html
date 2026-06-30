@@ -1,27 +1,39 @@
 <!-- app/customers/templates/customers/profile.html -->
 {% extends "base.html" %}
-{% block title %}mi perfil{% endblock %}
+{% block title %}Mi perfil{% endblock %}
 {% block content %}
-<h2>mi perfil de cliente</h2>
+<h2>Mi perfil de cliente</h2>
 <form method="post">
     <div class="row">
         <div class="col-md-6 mb-3">
-            <label for="nombre" class="form-label">nombre</label>
+            <label for="nombre" class="form-label">Nombre</label>
             <input type="text" class="form-control" id="nombre" name="nombre" value="{{ cliente.nombre }}" required>
         </div>
         <div class="col-md-6 mb-3">
-            <label for="apellido" class="form-label">apellido</label>
+            <label for="apellido" class="form-label">Apellido</label>
             <input type="text" class="form-control" id="apellido" name="apellido" value="{{ cliente.apellido }}" required>
         </div>
     </div>
     <div class="mb-3">
-        <label for="telefono" class="form-label">telefono</label>
+        <label for="telefono" class="form-label">Telefono</label>
         <input type="text" class="form-control" id="telefono" name="telefono" value="{{ cliente.telefono or '' }}">
     </div>
     <div class="mb-3">
-        <label for="direccion" class="form-label">direccion</label>
+        <label for="direccion" class="form-label">Direccion</label>
         <textarea class="form-control" id="direccion" name="direccion" rows="3">{{ cliente.direccion or '' }}</textarea>
     </div>
-    <button type="submit" class="btn btn-success">guardar cambios</button>
+    <!-- dentro de app/customers/templates/customers/profile.html, antes del botón de guardar -->
+    <div class="mb-3">
+        
+        <label class="form-label">Ubicación en el mapa</label>
+        {% if cliente.latitud and cliente.longitud %}
+            <p class="text-muted">Latitud: {{ cliente.latitud }}, Longitud: {{ cliente.longitud }}</p>
+            <a href="{{ url_for('customers.set_location') }}" class="btn btn-outline-secondary btn-sm">🗺️ Cambiar ubicación</a>
+        {% else %}
+            <p class="text-warning">Aún no has establecido tu ubicación de entrega.</p>
+            <a href="{{ url_for('customers.set_location') }}" class="btn btn-primary">🗺️ Establecer ubicación en el mapa</a>
+        {% endif %}
+    </div>
+    <button type="submit" class="btn btn-success">Guardar cambios</button>
 </form>
 {% endblock %}

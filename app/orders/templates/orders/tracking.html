@@ -1,0 +1,71 @@
+<!-- app/orders/templates/orders/tracking.html -->
+{% extends "base.html" %}
+{% block title %}Seguimiento Pedido #{{ pedido.id }}{% endblock %}
+{% block content %}
+<h2>Seguimiento de tu pedido #{{ pedido.id }}</h2>
+
+<div id="map" style="height: 500px; border-radius: 0.5rem;"></div>
+
+<div class="mt-3">
+    <p><strong>Estado:</strong> <span id="estado-pedido">{{ pedido.estado }}</span></p>
+    <p><strong>Sucursal de envío:</strong> {{ pedido.sucursal.nombre }}</p>
+    <p><strong>Dirección de entrega:</strong> {{ pedido.cliente.direccion or 'Ubicación en el mapa' }}</p>
+    <p><strong>Distancia total:</strong> {{ distancia_km }} km</p>
+    <p><strong>Tiempo estimado de viaje:</strong> {{ tiempo_min }} minutos</p>
+</div>
+
+<a href="{{ url_for('orders.detail', id=pedido.id) }}" class="btn btn-secondary">Volver al detalle</a>
+{% endblock %}
+
+{% block scripts %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+    var sucLat = {{ pedido.sucursal.latitud }};
+    var sucLng = {{ pedido.sucursal.longitud }};
+    var cliLat = {{ pedido.cliente.latitud }};
+    var cliLng = {{ pedido.cliente.longitud }};
+    var pedidoId = {{ pedido.id }};
+
+    var map = L.map('map').setView([sucLat, sucLng], 14);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    L.marker([sucLat, sucLng]).addTo(map).bindPopup("🏪 {{ pedido.sucursal.nombre }}");
+    L.marker([cliLat, cliLng]).addTo(map).bindPopup("📍 Tu ubicación");
+
+    var urlRuta = `https://router.project-osrm.org/route/v1/driving/${sucLng},${sucLat};${cliLng},${cliLat}?overview=full&geometries=geojson`;
+
+    fetch(urlRuta)
+        .then(response => response.json())
+        .then(data => {
+            if (data.routes && data.routes.length > 0) {
+                var coords = data.routes[0].geometry.coordinates.map(c => [c[1], c[0]]);
+                L.polyline(coords, {color: 'red', weight: 4}).addTo(map);
+
+                var repartidorIcon = L.divIcon({html: '🛵', className: 'repartidor-icon', iconSize: [30,30]});
+                var repartidor = L.marker(coords[0], {icon: repartidorIcon}).addTo(map);
+
+                function actualizarPosicion() {
+                    fetch(`/orders/api/progress/${pedidoId}`)
+                        .then(res => res.json())
+                        .then(progressData => {
+                            var progreso = progressData.progreso || 0;
+                            if (progreso < coords.length) {
+                                repartidor.setLatLng(coords[progreso]);
+                                if (progreso >= coords.length - 1) {
+                                    repartidor.bindPopup("¡Pedido entregado! 🎉").openPopup();
+                                    document.getElementById('estado-pedido').innerText = 'entregado';
+                                }
+                            }
+                        });
+                }
+
+                setInterval(actualizarPosicion, 2000);
+                actualizarPosicion();
+            }
+        });
+</script>
+{% endblock %}

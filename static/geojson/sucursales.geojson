@@ -1,0 +1,17 @@
+{
+    "type": "FeatureCollection",
+    "name": "Sucursales",
+    "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+    "features": [
+    { "type": "Feature", "properties": { "nombre": "Sucursal Senkata", "direccion": "Av. Juan Pablo II, Senkata, El Alto", "telefono": "2225901" }, "geometry": { "type": "Point", "coordinates": [ -68.24386425135917, -16.480733689860212 ] } },
+    { "type": "Feature", "properties": { "nombre": "Sucursal Villa Adela", "direccion": "Av. Ladislao Cabrera, Villa Adela, El Alto", "telefono": "2225902" }, "geometry": { "type": "Point", "coordinates": [ -68.210764979149616, -16.487305877229176 ] } },
+    { "type": "Feature", "properties": { "nombre": "Sucursal El Alto Centro", "direccion": "Av. 6 de Marzo, Ceja, El Alto", "telefono": "2225903" }, "geometry": { "type": "Point", "coordinates": [ -68.222451382355899, -16.530652232116068 ] } },
+    { "type": "Feature", "properties": { "nombre": "Sucursal Villa Fátima", "direccion": "Av. Periférica, Villa Fátima, La Paz", "telefono": "2225904" }, "geometry": { "type": "Point", "coordinates": [ -68.177444872360866, -16.531893847846092 ] } },
+    { "type": "Feature", "properties": { "nombre": "Sucursal Obrajes", "direccion": "Calle 8, Obrajes, La Paz", "telefono": "2225905" }, "geometry": { "type": "Point", "coordinates": [ -68.206261990271372, -16.558586653497969 ] } },
+    { "type": "Feature", "properties": { "nombre": "Sucursal Central", "direccion": "Av. 16 de Julio, Centro, La Paz", "telefono": "2225906" }, "geometry": { "type": "Point", "coordinates": [ -68.178092448044254, -16.48656970394071 ] } },
+    { "type": "Feature", "properties": { "nombre": "Sucursal Sopocachi", "direccion": "Av. Arce, Sopocachi, La Paz", "telefono": "2225907" }, "geometry": { "type": "Point", "coordinates": [ -68.149599117975455, -16.497125590560799 ] } },
+    { "type": "Feature", "properties": { "nombre": "Sucursal Miraflores", "direccion": "Av. Busch, Miraflores, La Paz", "telefono": "2225908" }, "geometry": { "type": "Point", "coordinates": [ -68.116896545964664, -16.506439129898375 ] } },
+    { "type": "Feature", "properties": { "nombre": "Sucursal Calacoto", "direccion": "Av. Ballivián, Calacoto, La Paz", "telefono": "2225909" }, "geometry": { "type": "Point", "coordinates": [ -68.079013368486827, -16.5300314212564 ] } },
+    { "type": "Feature", "properties": { "nombre": "Sucursal Achumani", "direccion": "Calle 33, Achumani, La Paz", "telefono": "2225910" }, "geometry": { "type": "Point", "coordinates": [ -68.191367749553578, -16.597377742905511 ] } }
+    ]
+    }

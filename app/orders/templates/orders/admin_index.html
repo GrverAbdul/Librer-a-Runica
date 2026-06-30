@@ -12,6 +12,7 @@
                 <th>Fecha Pedido</th>
                 <th>Total</th>
                 <th>Estado</th>
+                <th>Sucursal</th>
                 <th>Fecha Envío</th>
                 <th>Fecha Entrega</th>
                 <th>Acciones</th>
@@ -21,10 +22,19 @@
         {% for p in pedidos %}
             <tr>
                 <td>{{ p.id }}</td>
-                <td>{{ p.cliente.nombre }} {{ p.cliente.apellido }}</td>
+                <td>
+                    {% if current_user.rol.nombre in ['administrador', 'empleado'] %}
+                        <a href="{{ url_for('orders.customer_history', customer_id=p.cliente.id) }}">
+                            {{ p.cliente.nombre }} {{ p.cliente.apellido }}
+                        </a>
+                    {% else %}
+                        {{ p.cliente.nombre }} {{ p.cliente.apellido }}
+                    {% endif %}
+                </td>
                 <td>{{ p.fecha.strftime('%Y-%m-%d %H:%M') }}</td>
-                <td>Bs.{{ "%.2f"|format(p.total) }}</td>
+                <td>Bs{{ "%.2f"|format(p.total) }}</td>
                 <td><span class="badge bg-{{ 'success' if p.estado=='entregado' else 'warning' if p.estado=='pendiente' else 'info' }}">{{ p.estado }}</span></td>
+                <td>{{ p.sucursal.nombre if p.sucursal else 'No asignada' }}</td>
                 <td>{{ p.fecha_envio.strftime('%Y-%m-%d %H:%M') if p.fecha_envio else '-' }}</td>
                 <td>{{ p.fecha_entrega.strftime('%Y-%m-%d %H:%M') if p.fecha_entrega else '-' }}</td>
                 <td>

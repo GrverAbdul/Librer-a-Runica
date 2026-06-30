@@ -13,7 +13,7 @@
     <div class="col-md-8">
         <h1>{{ libro.titulo }}</h1>
         <p><strong>ISBN:</strong> {{ libro.isbn }}</p>
-        <p><strong>Precio:</strong> Bs{{ "%.2f"|format(libro.precio) }}</p>
+        <p><strong>Precio:</strong> Bs. {{ "%.2f"|format(libro.precio) }}</p>
         <p><strong>Stock:</strong> {{ libro.stock }}</p>
         <p><strong>Categoría:</strong> {{ libro.categoria.nombre }}</p>
         <p><strong>Autor:</strong> {{ libro.autor.nombre }}</p>

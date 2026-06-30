@@ -1,0 +1,82 @@
+<!-- app/customers/templates/customers/set_location.html -->
+{% extends "base.html" %}
+{% block title %}Mi Ubicación{% endblock %}
+{% block content %}
+<h2>Selecciona tu ubicación de entrega</h2>
+<p>Arrastra el marcador rojo hasta tu dirección exacta. La dirección se obtendrá automáticamente.</p>
+
+<div id="map" style="height: 450px; border-radius: 0.5rem;"></div>
+
+<form method="post" id="locationForm">
+    <input type="hidden" id="latitud" name="latitud">
+    <input type="hidden" id="longitud" name="longitud">
+    <div class="mb-3">
+        <label for="direccion" class="form-label">Dirección</label>
+        <input type="text" class="form-control" id="direccion" name="direccion" readonly>
+    </div>
+    <button type="submit" class="btn btn-success mt-3">Guardar ubicación</button>
+    <a href="{{ url_for('customers.profile') }}" class="btn btn-secondary mt-3">Cancelar</a>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    // Coordenadas iniciales
+    {% if cliente.latitud and cliente.longitud %}
+        var latIni = {{ cliente.latitud }};
+        var lngIni = {{ cliente.longitud }};
+    {% else %}
+        var latIni = -16.5;
+        var lngIni = -68.15;
+    {% endif %}
+
+    var map = L.map('map').setView([latIni, lngIni], 15);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    var marker = L.marker([latIni, lngIni], {draggable: true}).addTo(map);
+
+    function updateInputs(latlng) {
+        document.getElementById('latitud').value = latlng.lat.toFixed(6);
+        document.getElementById('longitud').value = latlng.lng.toFixed(6);
+    }
+    updateInputs(marker.getLatLng());
+
+    // Obtener dirección desde Nominatim
+    function actualizarDireccion(lat, lng) {
+        var url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`;
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.display_name) {
+                    document.getElementById('direccion').value = data.display_name;
+                } else {
+                    document.getElementById('direccion').value = "Dirección no encontrada";
+                }
+            })
+            .catch(() => {
+                document.getElementById('direccion').value = "Error al obtener dirección";
+            });
+    }
+
+    // Actualizar inputs y dirección al mover el marcador
+    marker.on('moveend', function(e) {
+        var latlng = e.target.getLatLng();
+        updateInputs(latlng);
+        actualizarDireccion(latlng.lat, latlng.lng);
+    });
+
+    // Al hacer clic en el mapa
+    map.on('click', function(e) {
+        marker.setLatLng(e.latlng);
+        updateInputs(e.latlng);
+        actualizarDireccion(e.latlng.lat, e.latlng.lng);
+    });
+
+    // Cargar dirección inicial
+    actualizarDireccion(marker.getLatLng().lat, marker.getLatLng().lng);
+</script>
+{% endblock %}

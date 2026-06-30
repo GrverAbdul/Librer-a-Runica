@@ -9,7 +9,7 @@
         <div class="card text-white bg-success">
             <div class="card-body">
                 <h5 class="card-title">ventas totales</h5>
-                <p class="card-text display-6">Bs.{{ "%.2f"|format(total_ventas) }}</p>
+                <p class="card-text display-6">Bs. {{ "%.2f"|format(total_ventas) }}</p>
             </div>
         </div>
     </div>
@@ -41,7 +41,7 @@
                 <td>{{ pedido.id }}</td>
                 <td>{{ pedido.cliente.nombre }} {{ pedido.cliente.apellido }}</td>
                 <td>{{ pedido.fecha.strftime('%Y-%m-%d %H:%M') }}</td>
-                <td>Bs.{{ "%.2f"|format(pedido.total) }}</td>
+                <td>Bs. {{ "%.2f"|format(pedido.total) }}</td>
                 <td><span class="badge bg-{{ 'success' if pedido.estado=='entregado' else 'warning' if pedido.estado=='pendiente' else 'info' }}">{{ pedido.estado }}</span></td>
             </tr>
         {% endfor %}

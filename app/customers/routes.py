@@ -21,7 +21,7 @@ customers_bp = Blueprint(
 def profile():
     cliente = Customer.query.filter_by(usuario_id=current_user.id).first()
     if not cliente:
-        flash("no tienes un perfil de cliente. contacta al administrador.", "warning")
+        flash("No tienes un perfil de cliente. Contacta al administrador.", "warning")
         return redirect(url_for("main.index"))
 
     if request.method == "POST":
@@ -44,3 +44,30 @@ def profile():
 def index():
     clientes = Customer.query.all()
     return render_template("customers/index.html", clientes=clientes)
+
+# ------------------------------------------------------------
+# establecer ubicacion en el mapa
+# ------------------------------------------------------------
+@customers_bp.route("/set-location", methods=["GET", "POST"])
+@login_required
+def set_location():
+    cliente = Customer.query.filter_by(usuario_id=current_user.id).first()
+    if not cliente:
+        flash("No tienes un perfil de cliente.", "danger")
+        return redirect(url_for("main.index"))
+
+    if request.method == "POST":
+        lat = request.form.get("latitud", type=float)
+        lng = request.form.get("longitud", type=float)
+        direccion = request.form.get("direccion", "")
+        if lat is not None and lng is not None:
+            cliente.latitud = lat
+            cliente.longitud = lng
+            cliente.direccion = direccion # guardar dirección
+            db.session.commit()
+            flash("¡Ubicación guardada correctamente!", "success")
+            return redirect(url_for("customers.profile"))
+        else:
+            flash("No se recibieron coordenadas válidas.", "danger")
+
+    return render_template("customers/set_location.html", cliente=cliente)

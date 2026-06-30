@@ -147,7 +147,9 @@ class Customer(db.Model):
     apellido = db.Column(db.String(100), nullable=False, default="")
     telefono = db.Column(db.String(20))
     direccion = db.Column(db.Text)
-
+    latitud = db.Column(db.Float, nullable=True)
+    longitud = db.Column(db.Float, nullable=True)
+    
     __table_args__ = (
         db.UniqueConstraint('usuario_id', name='uq_clientes_usuario_id'),
     )
@@ -209,8 +211,13 @@ class Order(db.Model):
     fecha = db.Column(db.DateTime, default=datetime.utcnow)
     total = db.Column(db.Float, nullable=False)
     estado = db.Column(db.String(20), default="pendiente")  # pendiente, enviado, entregado
+    sucursal_id = db.Column(db.Integer, db.ForeignKey("sucursales.id", name="fk_pedidos_sucursal"), nullable=True)
+    sucursal = db.relationship("Sucursal")
     fecha_envio = db.Column(db.DateTime, nullable=True)
     fecha_entrega = db.Column(db.DateTime, nullable=True)
+    # Progreso de la simulación de seguimiento
+    progreso_simulacion = db.Column(db.Integer, default=0)  # índice de la coordenada actual
+    simulacion_activa = db.Column(db.Boolean, default=False) # True cuando el pedido está "enviado"
     # relaciones
     cliente = db.relationship("Customer", back_populates="pedidos")
     detalles = db.relationship("OrderDetail", back_populates="pedido", cascade="all, delete-orphan")
@@ -237,3 +244,38 @@ class OrderDetail(db.Model):
 
     def __repr__(self):
         return f"<OrderDetail pedido:{self.pedido_id} libro:{self.libro_id}>"
+    
+
+# ------------------------------------------------------------
+# Para SIG
+# ------------------------------------------------------------
+# ------------------------------------------------------------
+# modelo: sucursal (para el mapa)
+# ------------------------------------------------------------
+class Sucursal(db.Model):
+    __tablename__ = "sucursales"
+
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String(100), nullable=False)
+    direccion = db.Column(db.String(200))
+    telefono = db.Column(db.String(20))
+    latitud = db.Column(db.Float, nullable=False)
+    longitud = db.Column(db.Float, nullable=False)
+
+    def __repr__(self):
+        return f"<Sucursal {self.nombre}>"
+
+# ------------------------------------------------------------
+# modelo: zona de cobertura (geojson)
+# ------------------------------------------------------------
+class ZonaCobertura(db.Model):
+    __tablename__ = "zonas"
+
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String(100), nullable=False)
+    descripcion = db.Column(db.Text)
+    # almacena el geojson como texto (json)
+    geojson = db.Column(db.Text, nullable=False)
+
+    def __repr__(self):
+        return f"<ZonaCobertura {self.nombre}>"
